@@ -68,15 +68,18 @@ app.post('/api/login', (req, res) => {
 });
 
 const path = require('path');
+const fs = require('fs');
 
-// Serve static frontend files
+// Serve static frontend files (Only if building monolithic)
 const distPath = path.join(__dirname, '../dist');
-app.use(express.static(distPath));
-
-// Catch-all to serve index.html for React Router (if needed)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  
+  // Catch-all to serve index.html for React Router
+  app.use((req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
 // Start Server
 app.listen(PORT, () => {
