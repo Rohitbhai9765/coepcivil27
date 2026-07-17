@@ -23,7 +23,6 @@ export const generateDailyPDF = (dateStr, presentStudents, studentsData) => {
   doc.text("Professor: Shrashti Singh", 20, 40);
 
   doc.setFont("helvetica", "normal");
-  doc.text("Elective IV", 20, 46);
 
   const d = new Date(dateStr);
   const yy = String(d.getFullYear()).slice(-2);
