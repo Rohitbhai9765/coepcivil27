@@ -1,0 +1,88 @@
+import { useState } from 'react';
+import AttendanceTable from './AttendanceTable';
+import StatisticsPanel from './StatisticsPanel';
+import ViewerPanel from './ViewerPanel';
+import LoginModal from './LoginModal';
+import logo from '../assets/logo.png';
+
+export default function Dashboard() {
+  const [activeTab, setActiveTab] = useState('viewer'); // 'viewer', 'stats', 'mark'
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+
+  const handleLogin = (token) => {
+    setIsAdmin(true);
+    setShowLogin(false);
+    setActiveTab('mark');
+  };
+
+  const handleLogout = () => {
+    setIsAdmin(false);
+    setActiveTab('viewer');
+  };
+
+  if (showLogin) {
+    return (
+      <div className="app-container">
+        <header className="header" style={{ position: 'relative' }}>
+          <img src={logo} alt="COEP Civil 27" className="portal-logo" />
+          <h1>Attendance System</h1>
+          <p>Research Methodology</p>
+        </header>
+        <LoginModal onLogin={handleLogin} />
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <button className="btn btn-outline" onClick={() => setShowLogin(false)}>Back to Viewer</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app-container">
+      <header className="header" style={{ position: 'relative' }}>
+        <img src={logo} alt="COEP Civil 27" className="portal-logo" />
+        <div className="admin-btn-container">
+          {isAdmin ? (
+            <button className="btn btn-outline" onClick={handleLogout}>Log Out</button>
+          ) : (
+            <button className="btn btn-outline" onClick={() => setShowLogin(true)}>Admin Login</button>
+          )}
+        </div>
+        <h1>Attendance System</h1>
+        <p>Research Methodology</p>
+        <p style={{ marginTop: '0.25rem', fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500' }}>
+          Professor: Dr. Shrashti Singh
+        </p>
+      </header>
+      
+      <div className="tabs">
+        <button 
+          className={`tab-btn ${activeTab === 'viewer' ? 'active' : ''}`}
+          onClick={() => setActiveTab('viewer')}
+        >
+          Daily Records
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`}
+          onClick={() => setActiveTab('stats')}
+        >
+          Statistics
+        </button>
+        {isAdmin && (
+          <button 
+            className={`tab-btn ${activeTab === 'mark' ? 'active' : ''}`}
+            onClick={() => setActiveTab('mark')}
+          >
+            Mark Attendance (Admin)
+          </button>
+        )}
+      </div>
+
+      <main>
+        {activeTab === 'viewer' && <ViewerPanel />}
+        {activeTab === 'stats' && <StatisticsPanel />}
+        {activeTab === 'mark' && isAdmin && <AttendanceTable />}
+      </main>
+    </div>
+  );
+}
