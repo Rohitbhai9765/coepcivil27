@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const Attendance = require('./models/Attendance');
 const User = require('./models/User');
-const bcrypt = require('bcrypt');
+const { ClerkExpressRequireAuth, clerkClient } = require('@clerk/clerk-sdk-node');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -67,38 +67,47 @@ app.post('/api/attendance', async (req, res) => {
   }
 });
 
-// 3. Login Endpoint
-app.post('/api/login', async (req, res) => {
+// 3. Get Current User Profile (Clerk Auth)
+app.get('/api/me', ClerkExpressRequireAuth({}), async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { userId } = req.auth;
     
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
+    // Fetch user details from Clerk to get their email
+    const clerkUser = await clerkClient.users.getUser(userId);
+    const emailAddress = clerkUser.emailAddresses[0]?.emailAddress;
+
+    if (!emailAddress) {
+      return res.status(400).json({ error: 'No email address found for this user' });
     }
 
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    // Look up the user in our MongoDB by email
+    const dbUser = await User.findOne({ email: emailAddress });
+    
+    if (!dbUser) {
+      // User logged in via Clerk, but they are not authorized in our MongoDB
+      return res.status(403).json({ error: 'User is not authorized in the system' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // In a real app, generate a JWT token. Here we simulate a token.
     res.json({ 
       success: true, 
-      token: `token-${user._id}`,
       user: {
-        username: user.username,
-        role: user.role,
-        subjectIds: user.subjectIds
+        email: dbUser.email,
+        role: dbUser.role,
+        subjectIds: dbUser.subjectIds
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error during login', details: error.message, stack: error.stack });
+    console.error('Auth error:', error);
+    res.status(500).json({ error: 'Internal server error during authentication', details: error.message });
+  }
+});
+
+// Error handling middleware for Clerk
+app.use((err, req, res, next) => {
+  if (err.message === 'Unauthenticated') {
+    res.status(401).json({ error: 'Unauthenticated' });
+  } else {
+    next(err);
   }
 });
 

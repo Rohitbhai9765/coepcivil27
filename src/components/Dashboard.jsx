@@ -1,64 +1,79 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from '@clerk/clerk-react';
 import AttendanceTable from './AttendanceTable';
 import StatisticsPanel from './StatisticsPanel';
 import ViewerPanel from './ViewerPanel';
-import LoginModal from './LoginModal';
 import logo from '../assets/logo.png';
 import { subjects } from '../data/subjects';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('viewer'); // 'viewer', 'stats', 'mark'
   const [currentUser, setCurrentUser] = useState(null);
-  const [showLogin, setShowLogin] = useState(false);
   const [activeSubjectId, setActiveSubjectId] = useState(subjects[0].id);
+  const [authError, setAuthError] = useState('');
 
+  const { isLoaded, isSignedIn, getToken } = useAuth();
   const activeSubject = subjects.find(s => s.id === activeSubjectId) || subjects[0];
 
-  const handleLogin = (token, user) => {
-    setCurrentUser(user);
-    setShowLogin(false);
-    
-    // If professor, ensure the active subject is one of theirs
-    if (user.role === 'professor' && user.subjectIds && user.subjectIds.length > 0) {
-      if (!user.subjectIds.includes(activeSubjectId)) {
-        setActiveSubjectId(user.subjectIds[0]);
+  useEffect(() => {
+    async function fetchProfile() {
+      if (isSignedIn) {
+        try {
+          setAuthError('');
+          const token = await getToken();
+          const API_URL = import.meta.env.VITE_API_URL || '';
+          const res = await fetch(`${API_URL}/api/me`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          const data = await res.json();
+          
+          if (data.success) {
+            setCurrentUser(data.user);
+            
+            // If professor, ensure the active subject is one of theirs
+            if (data.user.role === 'professor' && data.user.subjectIds?.length > 0) {
+              if (!data.user.subjectIds.includes(activeSubjectId)) {
+                setActiveSubjectId(data.user.subjectIds[0]);
+              }
+            }
+            setActiveTab('mark');
+          } else {
+            setAuthError(data.error || 'Failed to load user profile. Make sure your email is registered in the database.');
+            setCurrentUser(null);
+            setActiveTab('viewer');
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+          setAuthError('Network error connecting to backend.');
+          setCurrentUser(null);
+          setActiveTab('viewer');
+        }
+      } else {
+        setCurrentUser(null);
+        setActiveTab('viewer');
       }
     }
     
-    setActiveTab('mark');
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setActiveTab('viewer');
-  };
-
-  if (showLogin) {
-    return (
-      <div className="app-container">
-        <header className="header" style={{ position: 'relative' }}>
-          <img src={logo} alt="COEP Civil 27" className="portal-logo" />
-          <h1>Attendance System</h1>
-          <p>{activeSubject.title}</p>
-        </header>
-        <LoginModal onLogin={handleLogin} />
-        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-          <button className="btn btn-outline" onClick={() => setShowLogin(false)}>Back to Viewer</button>
-        </div>
-      </div>
-    );
-  }
+    if (isLoaded) {
+      fetchProfile();
+    }
+  }, [isLoaded, isSignedIn, getToken]); // Note: activeSubjectId is intentionally omitted to avoid loops
 
   return (
     <div className="app-container">
       <header className="header" style={{ position: 'relative' }}>
         <img src={logo} alt="COEP Civil 27" className="portal-logo" />
-        <div className="admin-btn-container">
-          {currentUser ? (
-            <button className="btn btn-outline" onClick={handleLogout}>Log Out</button>
-          ) : (
-            <button className="btn btn-outline" onClick={() => setShowLogin(true)}>Login</button>
-          )}
+        <div className="admin-btn-container" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="btn btn-outline">Login</button>
+            </SignInButton>
+          </SignedOut>
         </div>
         <h1>Attendance System</h1>
         
@@ -85,6 +100,12 @@ export default function Dashboard() {
         <p style={{ marginTop: '0.25rem', fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500' }}>
           Professor: {activeSubject.professor}
         </p>
+
+        {authError && (
+          <div style={{ marginTop: '1rem', padding: '0.5rem', backgroundColor: '#ffebee', color: '#c62828', borderRadius: '4px', fontSize: '0.9rem' }}>
+            {authError}
+          </div>
+        )}
       </header>
       
       <div className="tabs">

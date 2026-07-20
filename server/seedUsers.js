@@ -1,85 +1,26 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 const User = require('./models/User');
 require('dotenv').config({ path: __dirname + '/.env' });
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/attendance-system';
 
-// Define all users and their passwords here.
-// IMPORTANT: Change these passwords before running the script!
+// Define all users and their EMAILS here.
+// When a user logs in via Clerk, we will match their email to this list.
 const usersToSeed = [
   {
-    username: 'adminRSB',
-    password: 'Rsb@admin26', // Change this
+    email: 'rohitb23.civil@coeptech.ac.in', // Replace with actual email
     role: 'master_admin',
     subjectIds: [] // Master admin doesn't need specific subject IDs
   },
   {
-    username: 'CR',
-    password: 'Abhi@26', // Change this
+    email: 'abhimanyuab23.civil@coeptech.ac.in', // Replace with actual email
     role: 'cr',
     subjectIds: []
   },
   {
-    username: 'LR',
-    password: 'Sam@26', // Change this
+    email: 'tagadesm23.civil@coeptech.ac.in', // Replace with actual email
     role: 'lr',
     subjectIds: []
-  },
-  // Professors mapped to their subjects
-  {
-    username: 'Prof_pr_patil',
-    password: 'Prpatil@26', // Change this
-    role: 'professor',
-    subjectIds: ['qsv']
-  },
-  {
-    username: 'Prof_mu_khobragade',
-    password: 'Mukhobragade@26', // Change this
-    role: 'professor',
-    subjectIds: ['ee']
-  },
-  {
-    username: 'Prof_s_singh',
-    password: 'Ssingh@26', // Change this
-    role: 'professor',
-    subjectIds: ['rm']
-  },
-  {
-    username: 'Prof_vb_dawari',
-    password: 'Vbdawari@26', // Change this
-    role: 'professor',
-    subjectIds: ['iee']
-  },
-  {
-    username: 'Prof_ar_akhare',
-    password: 'Arakhare@26', // Change this
-    role: 'professor',
-    subjectIds: ['pcs']
-  },
-  {
-    username: 'Prof_rs_dalvi',
-    password: 'Rsdalvi@26', // Change this
-    role: 'professor',
-    subjectIds: ['afe']
-  },
-  {
-    username: 'Prof_se_shinde',
-    password: 'Seshinde@26', // Change this
-    role: 'professor',
-    subjectIds: ['bim']
-  },
-  {
-    username: 'Prof_gs_vyas',
-    password: 'Gsvyas@26', // Change this
-    role: 'professor',
-    subjectIds: ['ctm']
-  },
-  {
-    username: 'Prof_nm_mohite',
-    password: 'Nmmohite@26', // Change this
-    role: 'professor',
-    subjectIds: ['dhs']
   }
 ];
 
@@ -89,34 +30,36 @@ async function seedDatabase() {
     await mongoose.connect(MONGO_URI);
     console.log('Connected to MongoDB');
 
-    // Optional: Clear existing users (uncomment if you want to reset users every time)
-    // await User.deleteMany({});
-    // console.log('Cleared existing users');
+    // Clear existing users to start fresh with only these emails
+    await User.deleteMany({});
+    console.log('Cleared existing users');
+
+    try {
+      await User.collection.dropIndex('username_1');
+      console.log('Dropped old username index');
+    } catch (e) {
+      // Ignore if index doesn't exist
+    }
 
     for (const userData of usersToSeed) {
       // Check if user already exists
-      const existingUser = await User.findOne({ username: userData.username });
-
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(userData.password, salt);
+      const existingUser = await User.findOne({ email: userData.email });
 
       if (existingUser) {
-        // Update password and roles if user exists
-        existingUser.password = hashedPassword;
+        // Update roles if user exists
         existingUser.role = userData.role;
         existingUser.subjectIds = userData.subjectIds;
         await existingUser.save();
-        console.log(`Updated user: ${userData.username}`);
+        console.log(`Updated user: ${userData.email}`);
       } else {
         // Create new user
         const newUser = new User({
-          username: userData.username,
-          password: hashedPassword,
+          email: userData.email,
           role: userData.role,
           subjectIds: userData.subjectIds
         });
         await newUser.save();
-        console.log(`Created user: ${userData.username}`);
+        console.log(`Created user: ${userData.email}`);
       }
     }
 
