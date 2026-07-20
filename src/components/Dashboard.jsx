@@ -63,15 +63,15 @@ export default function Dashboard() {
 
   return (
     <div className="app-container">
-      <header className="header" style={{ position: 'relative' }}>
+      <header className="header" style={{ position: 'relative', minHeight: '150px' }}>
         <img src={logo} alt="COEP Civil 27" className="portal-logo" />
-        <div className="admin-btn-container" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="admin-btn-container">
           <SignedIn>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="btn btn-outline">Login</button>
+              <button className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>Login</button>
             </SignInButton>
           </SignedOut>
         </div>

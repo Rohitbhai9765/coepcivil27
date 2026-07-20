@@ -98,7 +98,7 @@ app.get('/api/me', ClerkExpressRequireAuth({}), async (req, res) => {
     });
   } catch (error) {
     console.error('Auth error:', error);
-    res.status(500).json({ error: 'Internal server error during authentication', details: error.message });
+    res.status(500).json({ error: `Internal server error during authentication: ${error.message}`, details: error.message });
   }
 });
 
