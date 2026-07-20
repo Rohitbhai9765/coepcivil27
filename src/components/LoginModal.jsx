@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 export default function LoginModal({ onLogin }) {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,11 +16,11 @@ export default function LoginModal({ onLogin }) {
       const res = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ username, password })
       });
       const data = await res.json();
       if (data.success) {
-        onLogin(data.token);
+        onLogin(data.token, data.user);
       } else {
         setError(data.error || 'Login failed');
       }
@@ -31,12 +32,22 @@ export default function LoginModal({ onLogin }) {
 
   return (
     <div className="glass-panel" style={{ maxWidth: '400px', margin: '4rem auto', padding: '2rem' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Admin Login</h2>
+      <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Login</h2>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1rem' }}>
           <input 
+            type="text" 
+            placeholder="Username" 
+            className="date-picker" 
+            style={{ width: '100%' }}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
+          <input 
             type="password" 
-            placeholder="Enter Admin Password" 
+            placeholder="Password" 
             className="date-picker" 
             style={{ width: '100%' }}
             value={password}

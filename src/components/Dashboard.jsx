@@ -8,20 +8,28 @@ import { subjects } from '../data/subjects';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('viewer'); // 'viewer', 'stats', 'mark'
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
   const [activeSubjectId, setActiveSubjectId] = useState(subjects[0].id);
 
   const activeSubject = subjects.find(s => s.id === activeSubjectId) || subjects[0];
 
-  const handleLogin = (token) => {
-    setIsAdmin(true);
+  const handleLogin = (token, user) => {
+    setCurrentUser(user);
     setShowLogin(false);
+    
+    // If professor, ensure the active subject is one of theirs
+    if (user.role === 'professor' && user.subjectIds && user.subjectIds.length > 0) {
+      if (!user.subjectIds.includes(activeSubjectId)) {
+        setActiveSubjectId(user.subjectIds[0]);
+      }
+    }
+    
     setActiveTab('mark');
   };
 
   const handleLogout = () => {
-    setIsAdmin(false);
+    setCurrentUser(null);
     setActiveTab('viewer');
   };
 
@@ -46,10 +54,10 @@ export default function Dashboard() {
       <header className="header" style={{ position: 'relative' }}>
         <img src={logo} alt="COEP Civil 27" className="portal-logo" />
         <div className="admin-btn-container">
-          {isAdmin ? (
+          {currentUser ? (
             <button className="btn btn-outline" onClick={handleLogout}>Log Out</button>
           ) : (
-            <button className="btn btn-outline" onClick={() => setShowLogin(true)}>Admin Login</button>
+            <button className="btn btn-outline" onClick={() => setShowLogin(true)}>Login</button>
           )}
         </div>
         <h1>Attendance System</h1>
@@ -60,9 +68,17 @@ export default function Dashboard() {
             onChange={(e) => setActiveSubjectId(e.target.value)}
             style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem', maxWidth: '100%' }}
           >
-            {subjects.map(s => (
-              <option key={s.id} value={s.id}>{s.title}</option>
-            ))}
+            {subjects
+              .filter(s => {
+                if (currentUser && currentUser.role === 'professor') {
+                  return currentUser.subjectIds.includes(s.id);
+                }
+                return true; // Show all for master_admin, cr, lr, and guests
+              })
+              .map(s => (
+                <option key={s.id} value={s.id}>{s.title}</option>
+              ))
+            }
           </select>
         </div>
         
@@ -84,12 +100,12 @@ export default function Dashboard() {
         >
           Statistics
         </button>
-        {isAdmin && (
+        {currentUser && (
           <button 
             className={`tab-btn ${activeTab === 'mark' ? 'active' : ''}`}
             onClick={() => setActiveTab('mark')}
           >
-            Mark Attendance (Admin)
+            Mark Attendance
           </button>
         )}
       </div>
@@ -97,7 +113,7 @@ export default function Dashboard() {
       <main>
         {activeTab === 'viewer' && <ViewerPanel activeSubject={activeSubject} />}
         {activeTab === 'stats' && <StatisticsPanel activeSubject={activeSubject} />}
-        {activeTab === 'mark' && isAdmin && <AttendanceTable activeSubject={activeSubject} />}
+        {activeTab === 'mark' && currentUser && <AttendanceTable activeSubject={activeSubject} />}
       </main>
     </div>
   );

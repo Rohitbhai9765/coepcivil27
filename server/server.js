@@ -3,7 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Attendance = require('./models/Attendance');
-
+const User = require('./models/User');
+const bcrypt = require('bcrypt');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -66,13 +67,38 @@ app.post('/api/attendance', async (req, res) => {
   }
 });
 
-// 3. Admin Login
-app.post('/api/login', (req, res) => {
-  const { password } = req.body;
-  if (password === process.env.ADMIN_PASSWORD) {
-    res.json({ success: true, token: 'admin-token-123' });
-  } else {
-    res.status(401).json({ error: 'Invalid password' });
+// 3. Login Endpoint
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // In a real app, generate a JWT token. Here we simulate a token.
+    res.json({ 
+      success: true, 
+      token: `token-${user._id}`,
+      user: {
+        username: user.username,
+        role: user.role,
+        subjectIds: user.subjectIds
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error during login' });
   }
 });
 
