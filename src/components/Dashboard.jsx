@@ -63,19 +63,17 @@ export default function Dashboard() {
 
   return (
     <div className="app-container">
-      <header className="header">
-        <div className="header-top-bar">
-          <img src={logo} alt="COEP Civil 27" className="portal-logo" />
-          <div className="admin-btn-container">
-            <SignedIn>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>Login</button>
-              </SignInButton>
-            </SignedOut>
-          </div>
+      <header className="header" style={{ position: 'relative', minHeight: '180px' }}>
+        <img src={logo} alt="COEP Civil 27" className="portal-logo" />
+        <div className="admin-btn-container">
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>Login</button>
+            </SignInButton>
+          </SignedOut>
         </div>
         <h1>Attendance System</h1>
         

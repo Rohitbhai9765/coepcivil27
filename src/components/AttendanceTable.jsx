@@ -100,10 +100,10 @@ export default function AttendanceTable({ activeSubject }) {
           <tbody>
             {getStudentsForSubject(activeSubject.id).map((student) => (
               <tr key={student.mis}>
-                <td>{student.srNo}</td>
-                <td>{student.mis}</td>
-                <td style={{ fontWeight: 500 }}>{student.name}</td>
-                <td>
+                <td data-label="Sr No">{student.srNo}</td>
+                <td data-label="MIS">{student.mis}</td>
+                <td data-label="Name" style={{ fontWeight: 500 }}>{student.name}</td>
+                <td data-label="Status">
                   <label className="switch">
                     <input 
                       type="checkbox" 

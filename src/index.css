@@ -184,28 +184,44 @@ body {
 }
 
 
-.header-top-bar {
+.admin-btn-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center; /* keep them aligned at the top */
-  width: 100%;
+  justify-content: center;
   margin-bottom: 1rem;
 }
 
-.admin-btn-container {
-  display: flex;
-  align-items: center;
+.portal-logo {
+  display: block;
+  margin: 0 auto 1rem auto;
+  height: 80px; /* Clean size for mobile */
+  width: auto;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }
 
-.portal-logo {
-  height: 50px; /* Small on mobile */
-  width: auto;
-  transition: all 0.3s ease;
+.portal-logo:hover {
+  transform: scale(1.08) rotate(-3deg);
 }
 
 @media (min-width: 768px) {
+  .admin-btn-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-bottom: 0;
+  }
+
   .portal-logo {
-    height: 120px; /* Bigger on desktop */
+    position: absolute;
+    top: 75%;
+    left: 15%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    height: 180px; /* Big hero logo on desktop */
+  }
+
+  .portal-logo:hover {
+    transform: translate(-50%, -50%) scale(1.08) rotate(-3deg);
   }
 }
 
@@ -227,7 +243,60 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 500px; /* ensure it doesn't squish too much, forces horizontal scroll on very small screens */
+  min-width: 100%; /* Fix min-width */
+}
+
+/* Responsive Card Table for Mobile */
+@media (max-width: 767px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  
+  thead tr {
+    display: none;
+  }
+  
+  tr {
+    margin-bottom: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.5rem;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  td {
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
+    padding: 0.75rem;
+    padding-left: 40%;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.75rem;
+    width: 35%;
+    padding-right: 10px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-light);
+  }
+  
+  td:last-child {
+    border-bottom: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  table {
+    min-width: 500px;
+  }
 }
 
 th {
@@ -373,13 +442,19 @@ input:checked + .slider:before {
 }
 
 .btn-outline {
-  background: transparent;
-  color: var(--text-main);
-  border: 1px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  box-shadow: 0 4px 15px -5px rgba(79, 70, 229, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -5px rgba(79, 70, 229, 0.5);
+  border-color: var(--primary);
 }
 
 /* Statistics specific styles */
