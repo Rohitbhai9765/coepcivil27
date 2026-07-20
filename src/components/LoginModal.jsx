@@ -22,7 +22,7 @@ export default function LoginModal({ onLogin }) {
       if (data.success) {
         onLogin(data.token, data.user);
       } else {
-        setError(data.error || 'Login failed');
+        setError(data.error + (data.details ? `: ${data.details}` : '') || 'Login failed');
       }
     } catch (err) {
       setError('Network error');
