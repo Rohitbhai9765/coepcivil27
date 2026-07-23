@@ -3,14 +3,16 @@ import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from '@clerk/c
 import AttendanceTable from './AttendanceTable';
 import StatisticsPanel from './StatisticsPanel';
 import ViewerPanel from './ViewerPanel';
+import HodPanel from './HodPanel';
 import logo from '../assets/logo.png';
 import { subjects } from '../data/subjects';
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('viewer'); // 'viewer', 'stats', 'mark'
+  const [activeTab, setActiveTab] = useState('viewer'); // 'viewer', 'stats', 'mark', 'hod'
   const [currentUser, setCurrentUser] = useState(null);
   const [activeSubjectId, setActiveSubjectId] = useState(subjects[0].id);
   const [authError, setAuthError] = useState('');
+  const [isHodMode, setIsHodMode] = useState(false);
 
   const { isLoaded, isSignedIn, getToken } = useAuth();
   const activeSubject = subjects.find(s => s.id === activeSubjectId) || subjects[0];
@@ -65,7 +67,18 @@ export default function Dashboard() {
     <div className="app-container">
       <header className="header" style={{ position: 'relative', minHeight: '180px' }}>
         <img src={logo} alt="COEP Civil 27" className="portal-logo" />
-        <div className="admin-btn-container">
+        <div className="admin-btn-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+          <button 
+            className={`btn ${isHodMode ? 'btn-primary' : 'btn-outline'}`} 
+            style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer' }}
+            onClick={() => {
+              setIsHodMode(!isHodMode);
+              if (!isHodMode) setActiveTab('hod');
+              else if (activeTab === 'hod') setActiveTab('viewer');
+            }}
+          >
+            {isHodMode ? 'Exit HOD Mode' : 'HOD'}
+          </button>
           <SignedIn>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
@@ -121,6 +134,15 @@ export default function Dashboard() {
         >
           Statistics
         </button>
+        {isHodMode && (
+          <button 
+            className={`tab-btn ${activeTab === 'hod' ? 'active' : ''}`}
+            onClick={() => setActiveTab('hod')}
+            style={{ backgroundColor: activeTab === 'hod' ? '#f57c00' : '', color: activeTab === 'hod' ? 'white' : '' }}
+          >
+            HOD Panel
+          </button>
+        )}
         {currentUser && (
           <button 
             className={`tab-btn ${activeTab === 'mark' ? 'active' : ''}`}
@@ -134,6 +156,7 @@ export default function Dashboard() {
       <main>
         {activeTab === 'viewer' && <ViewerPanel activeSubject={activeSubject} />}
         {activeTab === 'stats' && <StatisticsPanel activeSubject={activeSubject} />}
+        {activeTab === 'hod' && isHodMode && <HodPanel activeSubject={activeSubject} />}
         {activeTab === 'mark' && currentUser && <AttendanceTable activeSubject={activeSubject} />}
       </main>
     </div>

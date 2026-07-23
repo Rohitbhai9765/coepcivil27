@@ -30,9 +30,8 @@ async function seedDatabase() {
     await mongoose.connect(MONGO_URI);
     console.log('Connected to MongoDB');
 
-    // Clear existing users to start fresh with only these emails
-    await User.deleteMany({});
-    console.log('Cleared existing users');
+    // Do not clear existing users to prevent data loss
+    // We will only add or update users below
 
     try {
       await User.collection.dropIndex('username_1');
