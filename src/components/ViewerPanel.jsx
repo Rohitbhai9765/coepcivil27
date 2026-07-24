@@ -40,7 +40,7 @@ export default function ViewerPanel({ activeSubject }) {
       return;
     }
     const currentStudents = getStudentsForSubject(activeSubject.id);
-    generateDailyPDF(date, presentStudents, currentStudents, activeSubject.title, activeSubject.professor);
+    generateDailyPDF(date, presentStudents, currentStudents, activeSubject.title, activeSubject.professor, activeSubject.id);
     setShowDropdown(false);
   };
 
@@ -50,7 +50,7 @@ export default function ViewerPanel({ activeSubject }) {
       return;
     }
     const currentStudents = getStudentsForSubject(activeSubject.id);
-    generateDailyExcel(date, presentStudents, currentStudents, activeSubject.title, activeSubject.professor);
+    generateDailyExcel(date, presentStudents, currentStudents, activeSubject.title, activeSubject.professor, activeSubject.id);
     setShowDropdown(false);
   };
 

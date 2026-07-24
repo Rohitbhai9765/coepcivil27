@@ -4,15 +4,22 @@ import AttendanceTable from './AttendanceTable';
 import StatisticsPanel from './StatisticsPanel';
 import ViewerPanel from './ViewerPanel';
 import HodPanel from './HodPanel';
+import TimetablePanel from './TimetablePanel';
 import logo from '../assets/logo.png';
 import { subjects } from '../data/subjects';
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('viewer'); // 'viewer', 'stats', 'mark', 'hod'
+  const [activeTab, setActiveTab] = useState('viewer'); // 'viewer', 'stats', 'mark', 'hod', 'timetable'
   const [currentUser, setCurrentUser] = useState(null);
   const [activeSubjectId, setActiveSubjectId] = useState(subjects[0].id);
   const [authError, setAuthError] = useState('');
   const [isHodMode, setIsHodMode] = useState(false);
+
+  // HOD Login State
+  const [showHodLogin, setShowHodLogin] = useState(false);
+  const [hodUsername, setHodUsername] = useState('');
+  const [hodPassword, setHodPassword] = useState('');
+  const [hodLoginError, setHodLoginError] = useState('');
 
   const { isLoaded, isSignedIn, getToken } = useAuth();
   const activeSubject = subjects.find(s => s.id === activeSubjectId) || subjects[0];
@@ -30,10 +37,10 @@ export default function Dashboard() {
             }
           });
           const data = await res.json();
-          
+
           if (data.success) {
             setCurrentUser(data.user);
-            
+
             // If professor, ensure the active subject is one of theirs
             if (data.user.role === 'professor' && data.user.subjectIds?.length > 0) {
               if (!data.user.subjectIds.includes(activeSubjectId)) {
@@ -57,7 +64,7 @@ export default function Dashboard() {
         setActiveTab('viewer');
       }
     }
-    
+
     if (isLoaded) {
       fetchProfile();
     }
@@ -67,14 +74,17 @@ export default function Dashboard() {
     <div className="app-container">
       <header className="header" style={{ position: 'relative', minHeight: '180px' }}>
         <img src={logo} alt="COEP Civil 27" className="portal-logo" />
-        <div className="admin-btn-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-          <button 
-            className={`btn ${isHodMode ? 'btn-primary' : 'btn-outline'}`} 
+        <div className="admin-btn-container">
+          <button
+            className={`btn ${isHodMode ? 'btn-primary' : 'btn-outline'}`}
             style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer' }}
             onClick={() => {
-              setIsHodMode(!isHodMode);
-              if (!isHodMode) setActiveTab('hod');
-              else if (activeTab === 'hod') setActiveTab('viewer');
+              if (!isHodMode) {
+                setShowHodLogin(true);
+              } else {
+                setIsHodMode(false);
+                if (activeTab === 'hod') setActiveTab('viewer');
+              }
             }}
           >
             {isHodMode ? 'Exit HOD Mode' : 'HOD'}
@@ -89,10 +99,10 @@ export default function Dashboard() {
           </SignedOut>
         </div>
         <h1>Attendance System</h1>
-        
+
         <div style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
-          <select 
-            value={activeSubjectId} 
+          <select
+            value={activeSubjectId}
             onChange={(e) => setActiveSubjectId(e.target.value)}
             style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem', maxWidth: '100%' }}
           >
@@ -109,7 +119,7 @@ export default function Dashboard() {
             }
           </select>
         </div>
-        
+
         <p style={{ marginTop: '0.25rem', fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500' }}>
           Professor: {activeSubject.professor}
         </p>
@@ -120,22 +130,28 @@ export default function Dashboard() {
           </div>
         )}
       </header>
-      
+
       <div className="tabs">
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'viewer' ? 'active' : ''}`}
           onClick={() => setActiveTab('viewer')}
         >
           Daily Records
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`}
           onClick={() => setActiveTab('stats')}
         >
           Statistics
         </button>
+        <button
+          className={`tab-btn ${activeTab === 'timetable' ? 'active' : ''}`}
+          onClick={() => setActiveTab('timetable')}
+        >
+          Timetable
+        </button>
         {isHodMode && (
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'hod' ? 'active' : ''}`}
             onClick={() => setActiveTab('hod')}
             style={{ backgroundColor: activeTab === 'hod' ? '#f57c00' : '', color: activeTab === 'hod' ? 'white' : '' }}
@@ -143,8 +159,8 @@ export default function Dashboard() {
             HOD Panel
           </button>
         )}
-        {currentUser && (
-          <button 
+        {currentUser && !isHodMode && (
+          <button
             className={`tab-btn ${activeTab === 'mark' ? 'active' : ''}`}
             onClick={() => setActiveTab('mark')}
           >
@@ -157,8 +173,65 @@ export default function Dashboard() {
         {activeTab === 'viewer' && <ViewerPanel activeSubject={activeSubject} />}
         {activeTab === 'stats' && <StatisticsPanel activeSubject={activeSubject} />}
         {activeTab === 'hod' && isHodMode && <HodPanel activeSubject={activeSubject} />}
-        {activeTab === 'mark' && currentUser && <AttendanceTable activeSubject={activeSubject} />}
+        {activeTab === 'mark' && currentUser && !isHodMode && <AttendanceTable activeSubject={activeSubject} />}
+        {activeTab === 'timetable' && <TimetablePanel />}
       </main>
+
+      {showHodLogin && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-panel" style={{ padding: '2rem', width: '100%', maxWidth: '350px', backgroundColor: 'white', borderRadius: '8px' }}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--primary-dark)' }}>HOD Login</h3>
+            <input
+              type="text"
+              placeholder="Username"
+              value={hodUsername}
+              onChange={e => setHodUsername(e.target.value)}
+              style={{ width: '100%', padding: '0.75rem', marginBottom: '1rem', boxSizing: 'border-box', border: '1px solid #ccc', borderRadius: '4px' }}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={hodPassword}
+              onChange={e => setHodPassword(e.target.value)}
+              style={{ width: '100%', padding: '0.75rem', marginBottom: '1rem', boxSizing: 'border-box', border: '1px solid #ccc', borderRadius: '4px' }}
+            />
+            {hodLoginError && <p style={{ color: '#d32f2f', fontSize: '0.85rem', marginBottom: '1rem' }}>{hodLoginError}</p>}
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button
+                className="btn btn-primary"
+                style={{ flex: 1, padding: '0.5rem' }}
+                onClick={() => {
+                  // Temporary credentials for HOD
+                  if (hodUsername === 'hod@coepcivil27' && hodPassword === 'hod2627') {
+                    setIsHodMode(true);
+                    setActiveTab('hod');
+                    setShowHodLogin(false);
+                    setHodUsername('');
+                    setHodPassword('');
+                    setHodLoginError('');
+                  } else {
+                    setHodLoginError('Invalid credentials');
+                  }
+                }}
+              >
+                Login
+              </button>
+              <button
+                className="btn btn-outline"
+                style={{ flex: 1, padding: '0.5rem' }}
+                onClick={() => {
+                  setShowHodLogin(false);
+                  setHodUsername('');
+                  setHodPassword('');
+                  setHodLoginError('');
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

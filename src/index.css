@@ -187,7 +187,10 @@ body {
 .admin-btn-container {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .portal-logo {
@@ -209,6 +212,8 @@ body {
     top: 0;
     right: 0;
     margin-bottom: 0;
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .portal-logo {
@@ -290,6 +295,35 @@ table {
   
   td:last-child {
     border-bottom: 0;
+  }
+  
+  /* Exempt timetable from card layout */
+  table.timetable-table,
+  table.timetable-table thead,
+  table.timetable-table tbody,
+  table.timetable-table th,
+  table.timetable-table td,
+  table.timetable-table tr {
+    display: revert;
+  }
+  
+  table.timetable-table td:before {
+    display: none;
+  }
+  
+  table.timetable-table tr {
+    margin-bottom: 0;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  
+  table.timetable-table td {
+    padding: 0.5rem;
+    padding-left: 0.5rem;
+    text-align: center;
+    justify-content: center;
   }
 }
 

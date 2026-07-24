@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-export const generateDailyPDF = (dateStr, presentStudents, studentsData, subjectTitle, professorName) => {
+export const generateDailyPDF = (dateStr, presentStudents, studentsData, subjectTitle, professorName, subjectId) => {
   const doc = new jsPDF();
 
   // Header: Subject Title
@@ -25,16 +25,26 @@ export const generateDailyPDF = (dateStr, presentStudents, studentsData, subject
   doc.setFont("helvetica", "normal");
 
   const d = new Date(dateStr);
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const weekdayStr = days[d.getDay()];
   const yy = String(d.getFullYear()).slice(-2);
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
-  const formattedDateRight = `${dd}/${mm}/${yy}`;
+  const formattedDateRight = `${weekdayStr}, ${dd}/${mm}/${yy}`;
 
   const dateStrWidth = doc.getTextWidth(formattedDateRight);
   doc.text(formattedDateRight, doc.internal.pageSize.width - 20 - dateStrWidth, 46);
 
+  // Summary counts
+  const totalSt = studentsData.length;
+  const presSt = presentStudents.length;
+  const absSt = totalSt - presSt;
+  doc.setFont("helvetica", "bold");
+  doc.text(`Total: ${totalSt}   Present: ${presSt}   Absent: ${absSt}`, 20, 48);
+
   // Horizontal line
-  doc.line(15, 52, doc.internal.pageSize.width - 15, 52);
+  doc.setLineWidth(0.5);
+  doc.line(15, 54, doc.internal.pageSize.width - 15, 54);
 
   // Title
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -50,13 +60,13 @@ export const generateDailyPDF = (dateStr, presentStudents, studentsData, subject
   const dayStr = d.getDate() + suffix(d.getDate());
   const monthStr = months[d.getMonth()];
   const fullYear = d.getFullYear();
-  const attendanceTitle = `ATTENDANCE: ${dayStr} ${monthStr} ${fullYear}`;
+  const attendanceTitle = `ATTENDANCE: ${weekdayStr}, ${dayStr} ${monthStr} ${fullYear}`;
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   const attTitleWidth = doc.getTextWidth(attendanceTitle);
   const xAtt = (doc.internal.pageSize.width - attTitleWidth) / 2;
-  doc.text(attendanceTitle, xAtt, 67);
+  doc.text(attendanceTitle, xAtt, 69);
 
   // Table Data
   const tableData = [];
@@ -69,7 +79,7 @@ export const generateDailyPDF = (dateStr, presentStudents, studentsData, subject
   });
 
   autoTable(doc, {
-    startY: 77,
+    startY: 79,
     head: [['Sr. No.', 'MIS', 'Name']],
     body: tableData,
     theme: 'grid',
@@ -93,5 +103,6 @@ export const generateDailyPDF = (dateStr, presentStudents, studentsData, subject
     margin: { left: 30, right: 30 }
   });
 
-  doc.save(`Attendance_${dateStr}.pdf`);
+  const idStr = subjectId ? `_${subjectId.toUpperCase()}` : '';
+  doc.save(`Attendance_${dateStr}${idStr}.pdf`);
 };

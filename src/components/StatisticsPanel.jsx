@@ -60,12 +60,13 @@ export default function StatisticsPanel({ activeSubject }) {
       }
     });
 
-    doc.save('Attendance_Report.pdf');
+    const idStr = activeSubject.id ? `_${activeSubject.id.toUpperCase()}` : '';
+    doc.save(`Attendance_Report${idStr}.pdf`);
     setShowDropdown(false);
   };
 
   const generateExcel = () => {
-    generateStatisticsExcel(stats, totalClasses, activeSubject.title, activeSubject.professor);
+    generateStatisticsExcel(stats, totalClasses, activeSubject.title, activeSubject.professor, activeSubject.id);
     setShowDropdown(false);
   };
 

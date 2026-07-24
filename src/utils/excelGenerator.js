@@ -1,12 +1,14 @@
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
-export const generateDailyExcel = async (date, presentStudents, studentsData, subjectTitle, professorName) => {
+export const generateDailyExcel = async (date, presentStudents, studentsData, subjectTitle, professorName, subjectId) => {
   const d = new Date(date);
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const weekdayStr = days[d.getDay()];
   const yy = String(d.getFullYear()).slice(-2);
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
-  const formattedDate = `${dd}/${mm}/${yy}`;
+  const formattedDate = `${weekdayStr}, ${dd}/${mm}/${yy}`;
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const suffix = (day) => {
@@ -21,7 +23,7 @@ export const generateDailyExcel = async (date, presentStudents, studentsData, su
   const dayStr = d.getDate() + suffix(d.getDate());
   const monthStr = months[d.getMonth()];
   const fullYear = d.getFullYear();
-  const attendanceTitle = `ATTENDANCE: ${dayStr} ${monthStr} ${fullYear}`;
+  const attendanceTitle = `ATTENDANCE: ${weekdayStr}, ${dayStr} ${monthStr} ${fullYear}`;
 
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Attendance');
@@ -40,9 +42,21 @@ export const generateDailyExcel = async (date, presentStudents, studentsData, su
   titleRow.alignment = { horizontal: 'center' };
 
   // Subtitle Row (Row 2)
-  const subRow = worksheet.addRow([`Professor: ${professorName || 'Unknown'}`, '', '', `Date: ${formattedDate}`]);
-  worksheet.mergeCells('A2:C2');
+  const subRow = worksheet.addRow([`Professor: ${professorName || 'Unknown'}`, '', `Date: ${formattedDate}`, '']);
+  worksheet.mergeCells('A2:B2');
+  worksheet.mergeCells('C2:D2');
   subRow.font = { name: 'Arial', size: 12, bold: true };
+  subRow.getCell(3).alignment = { horizontal: 'right' };
+
+  // Summary Row (Row 3)
+  const totalSt = studentsData.length;
+  const presSt = presentStudents.length;
+  const absSt = totalSt - presSt;
+  const summaryRow = worksheet.addRow([`Total Students: ${totalSt}`, '', `Present: ${presSt}`, `Absent: ${absSt}`]);
+  worksheet.mergeCells('A3:B3');
+  summaryRow.font = { name: 'Arial', size: 11, bold: true };
+  summaryRow.getCell(3).alignment = { horizontal: 'center' };
+  summaryRow.getCell(4).alignment = { horizontal: 'right' };
 
   // Empty Row
   worksheet.addRow([]);
@@ -92,10 +106,11 @@ export const generateDailyExcel = async (date, presentStudents, studentsData, su
   });
 
   const buffer = await workbook.xlsx.writeBuffer();
-  saveAs(new Blob([buffer]), `Attendance_${date}.xlsx`);
+  const idStr = subjectId ? `_${subjectId.toUpperCase()}` : '';
+  saveAs(new Blob([buffer]), `Attendance_${date}${idStr}.xlsx`);
 };
 
-export const generateStatisticsExcel = async (stats, totalClasses, subjectTitle, professorName) => {
+export const generateStatisticsExcel = async (stats, totalClasses, subjectTitle, professorName, subjectId) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Statistics');
 
@@ -153,5 +168,6 @@ export const generateStatisticsExcel = async (stats, totalClasses, subjectTitle,
   });
 
   const buffer = await workbook.xlsx.writeBuffer();
-  saveAs(new Blob([buffer]), 'Attendance_Report.xlsx');
+  const idStr = subjectId ? `_${subjectId.toUpperCase()}` : '';
+  saveAs(new Blob([buffer]), `Attendance_Report${idStr}.xlsx`);
 };
