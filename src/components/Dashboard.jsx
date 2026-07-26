@@ -77,7 +77,6 @@ export default function Dashboard() {
         <div className="admin-btn-container">
           <button
             className={`btn ${isHodMode ? 'btn-primary' : 'btn-outline'}`}
-            style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer' }}
             onClick={() => {
               if (!isHodMode) {
                 setShowHodLogin(true);
@@ -87,14 +86,19 @@ export default function Dashboard() {
               }
             }}
           >
-            {isHodMode ? 'Exit HOD Mode' : 'HOD'}
+            {isHodMode ? (
+              <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.1' }}>
+                <span>Exit HOD</span>
+                <span style={{ fontSize: '0.75em', opacity: 0.9 }}>Mode</span>
+              </span>
+            ) : 'HOD'}
           </button>
           <SignedIn>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>Login</button>
+              <button className="btn btn-outline">Login</button>
             </SignInButton>
           </SignedOut>
         </div>

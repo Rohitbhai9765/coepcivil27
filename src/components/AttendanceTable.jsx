@@ -87,61 +87,49 @@ export default function AttendanceTable({ activeSubject }) {
         </div>
       </div>
       
-      <div 
-        style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', 
-          gap: '0.5rem', 
-          maxHeight: 'calc(100vh - 280px)', 
-          overflowY: 'auto', 
-          paddingRight: '0.25rem',
-          alignContent: 'start'
-        }}
-      >
-        {getStudentsForSubject(activeSubject.id).map((student) => {
-          const misStr = String(student.mis);
-          const firstPart = misStr.length > 2 ? misStr.slice(0, -2) : '';
-          const lastTwo = misStr.length > 2 ? misStr.slice(-2) : misStr;
-          const isPresent = attendance[student.mis] || false;
-          
-          return (
-            <div 
-              key={student.mis} 
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between', 
-                padding: '0.5rem 0.75rem', 
-                border: `1px solid ${isPresent ? 'var(--success)' : 'var(--surface-border)'}`, 
-                borderRadius: '8px', 
-                background: isPresent ? 'rgba(16, 185, 129, 0.05)' : 'var(--surface)',
-                opacity: !lectureConducted ? 0.6 : 1,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0, paddingRight: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', minWidth: '1.25rem' }}>{student.srNo}.</span>
-                <span style={{ fontFamily: 'monospace', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
-                  {firstPart}
-                  <strong style={{ color: '#d32f2f', fontSize: '0.95rem', background: '#ffebee', padding: '0 2px', borderRadius: '3px' }}>
-                    {lastTwo}
-                  </strong>
-                </span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-main)' }} title={student.name}>
-                  {student.name}
-                </span>
-              </div>
-              <label className="switch" style={{ margin: 0, transform: 'scale(0.8)', transformOrigin: 'right center' }}>
-                <input 
-                  type="checkbox" 
-                  disabled={!lectureConducted}
-                  checked={isPresent}
-                  onChange={() => handleToggle(student.mis)}
-                />
-                <span className="slider"></span>
-              </label>
-            </div>
-          );
-        })}
+      <div className="table-container" style={{ maxHeight: 'calc(100vh - 280px)', overflowY: 'auto' }}>
+        <table>
+          <thead style={{ position: 'sticky', top: 0, background: 'var(--surface)', zIndex: 1, backdropFilter: 'blur(10px)' }}>
+            <tr>
+              <th>Sr No</th>
+              <th>MIS</th>
+              <th>Name</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {getStudentsForSubject(activeSubject.id).map((student) => {
+              const misStr = String(student.mis);
+              const firstPart = misStr.length > 2 ? misStr.slice(0, -2) : '';
+              const lastTwo = misStr.length > 2 ? misStr.slice(-2) : misStr;
+              const isPresent = attendance[student.mis] || false;
+              
+              return (
+                <tr key={student.mis} style={{ opacity: !lectureConducted ? 0.6 : 1, background: isPresent ? 'rgba(16, 185, 129, 0.05)' : 'transparent' }}>
+                  <td>{student.srNo}</td>
+                  <td style={{ fontFamily: 'monospace' }}>
+                    {firstPart}
+                    <strong style={{ color: '#d32f2f', background: '#ffebee', padding: '0 2px', borderRadius: '3px' }}>
+                      {lastTwo}
+                    </strong>
+                  </td>
+                  <td style={{ fontWeight: 500 }}>{student.name}</td>
+                  <td>
+                    <label className="switch" style={{ margin: 0, transform: 'scale(0.8)', transformOrigin: 'left center' }}>
+                      <input 
+                        type="checkbox" 
+                        disabled={!lectureConducted}
+                        checked={isPresent}
+                        onChange={() => handleToggle(student.mis)}
+                      />
+                      <span className="slider"></span>
+                    </label>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );

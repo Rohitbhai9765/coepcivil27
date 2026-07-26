@@ -131,14 +131,23 @@ export default function StatisticsPanel({ activeSubject }) {
               <th>Sr No</th>
               <th>MIS</th>
               <th>Name</th>
-              <th>Percentage</th>
+              <th>%</th>
             </tr>
           </thead>
           <tbody>
-            {stats.map(student => (
-              <tr key={student.mis}>
-                <td>{student.srNo}</td>
-                <td>{student.mis}</td>
+            {stats.map(student => {
+              const misStr = String(student.mis);
+              const firstPart = misStr.length > 2 ? misStr.slice(0, -2) : '';
+              const lastTwo = misStr.length > 2 ? misStr.slice(-2) : misStr;
+              return (
+                <tr key={student.mis}>
+                  <td>{student.srNo}</td>
+                  <td style={{ fontFamily: 'monospace' }}>
+                    {firstPart}
+                    <strong style={{ color: '#d32f2f', background: '#ffebee', padding: '0 2px', borderRadius: '3px' }}>
+                      {lastTwo}
+                    </strong>
+                  </td>
                 <td style={{ fontWeight: 500 }}>{student.name}</td>
                 <td>
                   <span className={`badge ${
@@ -149,7 +158,8 @@ export default function StatisticsPanel({ activeSubject }) {
                   </span>
                 </td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>

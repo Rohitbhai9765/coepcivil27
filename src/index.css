@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap');
 
 :root {
   --primary: #4f46e5;
@@ -45,13 +45,16 @@ body {
 }
 
 .header h1 {
-  font-size: 1.75rem; /* Slightly larger for mobile */
-  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 1.85rem; /* Slightly larger for mobile */
+  font-weight: 800;
   background: linear-gradient(to right, var(--primary), #8b5cf6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
-  margin-top: 3.5rem; /* Clear absolute header elements */
+  margin-top: 0.5rem;
 }
 
 @media (min-width: 768px) {
@@ -185,12 +188,28 @@ body {
 
 
 .admin-btn-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+  height: 80px; /* Match logo height */
+  padding: 0 2.5rem; /* Push buttons slightly inwards */
+  pointer-events: none; /* Let clicks pass through empty space */
+  z-index: 10;
+}
+
+.admin-btn-container > * {
+  pointer-events: auto; /* Re-enable clicks for buttons */
+}
+
+.admin-btn-container .btn {
+  width: auto;
+  white-space: nowrap;
+  padding: 0.5rem 1rem; /* Compact padding for mobile to prevent overlap */
+  font-size: 0.95rem; 
 }
 
 .portal-logo {
@@ -209,11 +228,21 @@ body {
 @media (min-width: 768px) {
   .admin-btn-container {
     position: absolute;
-    top: 0;
-    right: 0;
-    margin-bottom: 0;
+    top: 75%;
+    right: 15%;
+    transform: translate(50%, -50%);
+    left: auto;
+    height: auto;
+    pointer-events: auto;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .admin-btn-container .btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.15rem;
+    min-width: 180px; /* Enforce uniform width for a neat vertical stack */
   }
 
   .portal-logo {
@@ -251,81 +280,7 @@ table {
   min-width: 100%; /* Fix min-width */
 }
 
-/* Responsive Card Table for Mobile */
-@media (max-width: 767px) {
-  table, thead, tbody, th, td, tr {
-    display: block;
-  }
-  
-  thead tr {
-    display: none;
-  }
-  
-  tr {
-    margin-bottom: 1rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.5rem;
-    background: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
-  
-  td {
-    border: none;
-    border-bottom: 1px solid #f1f5f9;
-    position: relative;
-    padding: 0.75rem;
-    padding-left: 40%;
-    text-align: right;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-  
-  td:before {
-    content: attr(data-label);
-    position: absolute;
-    left: 0.75rem;
-    width: 35%;
-    padding-right: 10px;
-    text-align: left;
-    font-weight: 600;
-    color: var(--text-light);
-  }
-  
-  td:last-child {
-    border-bottom: 0;
-  }
-  
-  /* Exempt timetable from card layout */
-  table.timetable-table,
-  table.timetable-table thead,
-  table.timetable-table tbody,
-  table.timetable-table th,
-  table.timetable-table td,
-  table.timetable-table tr {
-    display: revert;
-  }
-  
-  table.timetable-table td:before {
-    display: none;
-  }
-  
-  table.timetable-table tr {
-    margin-bottom: 0;
-    border: none;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-  }
-  
-  table.timetable-table td {
-    padding: 0.5rem;
-    padding-left: 0.5rem;
-    text-align: center;
-    justify-content: center;
-  }
-}
+
 
 @media (min-width: 768px) {
   table {
@@ -447,48 +402,56 @@ input:checked + .slider:before {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: 9999px;
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%; /* full width on mobile */
   font-size: 0.875rem;
+  letter-spacing: 0.025em;
 }
 
 @media (min-width: 768px) {
   .btn {
     width: auto;
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1.75rem;
     font-size: 1rem;
   }
 }
 
 .btn-primary {
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
   color: white;
-  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 4px 15px -3px rgba(79, 70, 229, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(79, 70, 229, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.97);
 }
 
 .btn-outline {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.7);
   color: var(--primary);
-  border: 2px solid var(--primary);
-  box-shadow: 0 4px 15px -5px rgba(79, 70, 229, 0.2);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  box-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(12px);
 }
 
 .btn-outline:hover {
-  background: var(--primary);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px -5px rgba(79, 70, 229, 0.5);
+  background: rgba(255, 255, 255, 0.95);
   border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(79, 70, 229, 0.2);
+}
+
+.btn-outline:active {
+  transform: translateY(0) scale(0.97);
 }
 
 /* Statistics specific styles */

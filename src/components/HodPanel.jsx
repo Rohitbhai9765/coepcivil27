@@ -2,13 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { getStudentStatistics, getAttendanceRecords } from '../services/db';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Download, ChevronDown } from 'lucide-react';
+import { Download, ChevronDown, ChevronRight } from 'lucide-react';
 import { generateStatisticsExcel } from '../utils/excelGenerator';
 
 export default function HodPanel({ activeSubject }) {
   const [stats, setStats] = useState([]);
   const [conductedDates, setConductedDates] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [expand25, setExpand25] = useState(false);
+  const [expand50, setExpand50] = useState(false);
+  const [expand75, setExpand75] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -166,96 +169,150 @@ export default function HodPanel({ activeSubject }) {
       </div>
 
       <div style={{ marginBottom: '3rem' }}>
-        <h3 style={{ color: '#b71c1c', marginBottom: '1rem', borderBottom: '2px solid #ffcdd2', paddingBottom: '0.5rem' }}>Extreme Shortage (&lt; 25% Attendance)</h3>
-        {below25.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)' }}>No students with &lt; 25% attendance.</p>
-        ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>MIS</th>
-                  <th>Name</th>
-                  <th>Attended</th>
-                  <th>Percentage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {below25.map(student => (
-                  <tr key={student.mis}>
-                    <td>{student.mis}</td>
-                    <td style={{ fontWeight: 500 }}>{student.name}</td>
-                    <td>{student.classesAttended} / {totalClasses}</td>
-                    <td><span className="badge badge-red">{student.percentage}%</span></td>
+        <h3 
+          style={{ color: '#b71c1c', marginBottom: '1rem', borderBottom: '2px solid #ffcdd2', paddingBottom: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          onClick={() => setExpand25(!expand25)}
+        >
+          Extreme Shortage (&lt; 25% Attendance)
+          {expand25 ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+        </h3>
+        {expand25 && (
+          below25.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)' }}>No students with &lt; 25% attendance.</p>
+          ) : (
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>MIS</th>
+                    <th>Name</th>
+                    <th>Attended</th>
+                    <th>%</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {below25.map(student => {
+                    const misStr = String(student.mis);
+                    const firstPart = misStr.length > 2 ? misStr.slice(0, -2) : '';
+                    const lastTwo = misStr.length > 2 ? misStr.slice(-2) : misStr;
+                    return (
+                      <tr key={student.mis}>
+                        <td style={{ fontFamily: 'monospace' }}>
+                          {firstPart}
+                          <strong style={{ color: '#d32f2f', background: '#ffebee', padding: '0 2px', borderRadius: '3px' }}>
+                            {lastTwo}
+                          </strong>
+                        </td>
+                        <td style={{ fontWeight: 500 }}>{student.name}</td>
+                        <td>{student.classesAttended} / {totalClasses}</td>
+                        <td><span className="badge badge-red">{student.percentage}%</span></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
         )}
       </div>
 
       <div style={{ marginBottom: '3rem' }}>
-        <h3 style={{ color: '#d32f2f', marginBottom: '1rem', borderBottom: '2px solid #ffcdd2', paddingBottom: '0.5rem' }}>Critical Shortage (&lt; 50% Attendance)</h3>
-        {below50.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)' }}>No students with &lt; 50% attendance.</p>
-        ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>MIS</th>
-                  <th>Name</th>
-                  <th>Attended</th>
-                  <th>Percentage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {below50.map(student => (
-                  <tr key={student.mis}>
-                    <td>{student.mis}</td>
-                    <td style={{ fontWeight: 500 }}>{student.name}</td>
-                    <td>{student.classesAttended} / {totalClasses}</td>
-                    <td><span className="badge badge-red">{student.percentage}%</span></td>
+        <h3 
+          style={{ color: '#d32f2f', marginBottom: '1rem', borderBottom: '2px solid #ffcdd2', paddingBottom: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          onClick={() => setExpand50(!expand50)}
+        >
+          Critical Shortage (&lt; 50% Attendance)
+          {expand50 ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+        </h3>
+        {expand50 && (
+          below50.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)' }}>No students with &lt; 50% attendance.</p>
+          ) : (
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>MIS</th>
+                    <th>Name</th>
+                    <th>Attended</th>
+                    <th>%</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {below50.map(student => {
+                    const misStr = String(student.mis);
+                    const firstPart = misStr.length > 2 ? misStr.slice(0, -2) : '';
+                    const lastTwo = misStr.length > 2 ? misStr.slice(-2) : misStr;
+                    return (
+                      <tr key={student.mis}>
+                        <td style={{ fontFamily: 'monospace' }}>
+                          {firstPart}
+                          <strong style={{ color: '#d32f2f', background: '#ffebee', padding: '0 2px', borderRadius: '3px' }}>
+                            {lastTwo}
+                          </strong>
+                        </td>
+                        <td style={{ fontWeight: 500 }}>{student.name}</td>
+                        <td>{student.classesAttended} / {totalClasses}</td>
+                        <td><span className="badge badge-red">{student.percentage}%</span></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
         )}
       </div>
 
       <div>
-        <h3 style={{ color: '#f57c00', marginBottom: '1rem', borderBottom: '2px solid #ffe0b2', paddingBottom: '0.5rem' }}>Defaulters (&lt; 75% Attendance)</h3>
-        {below75.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)' }}>No students with &lt; 75% attendance.</p>
-        ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>MIS</th>
-                  <th>Name</th>
-                  <th>Attended</th>
-                  <th>Percentage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {below75.map(student => (
-                  <tr key={student.mis}>
-                    <td>{student.mis}</td>
-                    <td style={{ fontWeight: 500 }}>{student.name}</td>
-                    <td>{student.classesAttended} / {totalClasses}</td>
-                    <td>
-                      <span className={`badge ${student.percentage < 50 ? 'badge-red' : 'badge-yellow'}`}>
-                        {student.percentage}%
-                      </span>
-                    </td>
+        <h3 
+          style={{ color: '#f57c00', marginBottom: '1rem', borderBottom: '2px solid #ffe0b2', paddingBottom: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          onClick={() => setExpand75(!expand75)}
+        >
+          Defaulters (&lt; 75% Attendance)
+          {expand75 ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+        </h3>
+        {expand75 && (
+          below75.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)' }}>No students with &lt; 75% attendance.</p>
+          ) : (
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>MIS</th>
+                    <th>Name</th>
+                    <th>Attended</th>
+                    <th>%</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {below75.map(student => {
+                    const misStr = String(student.mis);
+                    const firstPart = misStr.length > 2 ? misStr.slice(0, -2) : '';
+                    const lastTwo = misStr.length > 2 ? misStr.slice(-2) : misStr;
+                    return (
+                      <tr key={student.mis}>
+                        <td style={{ fontFamily: 'monospace' }}>
+                          {firstPart}
+                          <strong style={{ color: '#d32f2f', background: '#ffebee', padding: '0 2px', borderRadius: '3px' }}>
+                            {lastTwo}
+                          </strong>
+                        </td>
+                        <td style={{ fontWeight: 500 }}>{student.name}</td>
+                        <td>{student.classesAttended} / {totalClasses}</td>
+                        <td>
+                          <span className={`badge ${student.percentage < 50 ? 'badge-red' : 'badge-yellow'}`}>
+                            {student.percentage}%
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
         )}
       </div>
 
