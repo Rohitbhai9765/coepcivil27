@@ -28,7 +28,6 @@ export const ctmStudents = [
   { srNo: 27, mis: "612301048", name: "MALODE PRAVIN KAILAS" },
   { srNo: 28, mis: "612301049", name: "MANE SANSKRUTI VIKAS" },
   { srNo: 29, mis: "612301050", name: "MANE SUDARSHAN SANJAY" },
-  { srNo: 30, mis: "612301051", name: "MANSI SAMBHAJI CHOPADE" },
   { srNo: 31, mis: "612301054", name: "MOHITE VIRAJ PRATAP" },
   { srNo: 32, mis: "612301055", name: "MORE VRUTIKA NANDKISHOR" },
   { srNo: 33, mis: "612301056", name: "MUJAWAR ALFIYA SHAKIL" },
