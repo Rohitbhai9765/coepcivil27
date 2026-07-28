@@ -4,6 +4,7 @@ export const pcsStudents = [
   { srNo: 3, mis: "612301029", name: "DUDE CHUZHO" },
   { srNo: 4, mis: "612301038", name: "KADAM ANISH ANIL" },
   { srNo: 5, mis: "612301043", name: "KEDAR RITESH RHUSHIKESH" },
+  { srNo: 30, mis: "612301051", name: "MANSI SAMBHAJI CHOPADE" },
   { srNo: 6, mis: "612301053", name: "MOHITE AAKANKSHA VISHWAS" },
   { srNo: 7, mis: "612301058", name: "MUSTAFA ALI" },
   { srNo: 8, mis: "612301071", name: "PATIL RASHIKA PRASHANT" },
