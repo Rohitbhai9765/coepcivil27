@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [activeSubjectId, setActiveSubjectId] = useState(subjects[0].id);
   const [authError, setAuthError] = useState('');
   const [isHodMode, setIsHodMode] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   // HOD Login State
   const [showHodLogin, setShowHodLogin] = useState(false);
@@ -23,6 +24,19 @@ export default function Dashboard() {
 
   const { isLoaded, isSignedIn, getToken } = useAuth();
   const activeSubject = subjects.find(s => s.id === activeSubjectId) || subjects[0];
+
+  useEffect(() => {
+    const handleOffline = () => setIsOffline(true);
+    const handleOnline = () => setIsOffline(false);
+    
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+    
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -72,6 +86,11 @@ export default function Dashboard() {
 
   return (
     <div className="app-container">
+      {isOffline && (
+        <div style={{ backgroundColor: '#ff9800', color: 'white', padding: '0.75rem', textAlign: 'center', fontWeight: 'bold', zIndex: 10 }}>
+          ⚠️ You are offline. Attendance will be saved locally and synced when you are back online.
+        </div>
+      )}
       <header className="header" style={{ position: 'relative', minHeight: '180px' }}>
         <img src={logo} alt="COEP Civil 27" className="portal-logo" />
         <div className="admin-btn-container">
